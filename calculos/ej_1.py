@@ -8,8 +8,9 @@ k = 25000  # N/m
 lambda_ = 0  # Ns/m
 c = 0.1  # m
 c_prima = 0 # estoy asumiendo c' como 0
-paso_h = 0.005  # s
-INTERVALO_T = 5  # s
+paso_h = 0.005  # segundos
+pasos_h = [0.005, 0.001, 0.01]  # Lista de diferentes tamaños de paso en segundos
+INTERVALO_T = 5  # segundos
 
 # Aplico cambio de variable:
 def sistema_cambio_de_variable(u, v):
@@ -49,12 +50,28 @@ def euler_explicito(funcion, u0, v0, paso_h, intervalo_t):
 y0 = 0  # Condición inicial para y
 v0 = 0  # Condición inicial para v
 
-tiempo, valores_y, valores_v = euler_explicito(sistema_cambio_de_variable, y0, v0, paso_h, INTERVALO_T)
 
-# Graficar resultados
-plt.plot(tiempo, valores_y, label='Posición (u)')
-#plt.plot(tiempo, valores_v, label='Velocidad (v)')
-plt.xlabel('Tiempo (s)')
-plt.ylabel('Magnitud')
+# tiempo, valores_u, valores_v = euler_explicito(sistema_cambio_de_variable, y0, v0, paso_h, INTERVALO_T)
+
+# # Graficar resultados
+# plt.plot(tiempo, valores_u, label='Posición (u)')
+# #plt.plot(tiempo, valores_v, label='Velocidad (v)')
+# plt.xlabel('Tiempo (s)')
+# plt.ylabel('Magnitud')
+# plt.legend()
+# plt.show()
+
+
+# Gráfico comparativo
+plt.figure(figsize=(10, 6))
+
+for paso_h in pasos_h:
+    tiempo, valores_y, _ = euler_explicito(sistema_cambio_de_variable, y0, v0, paso_h, INTERVALO_T)
+    plt.plot(tiempo, valores_y, label=f"Paso h={paso_h}")
+
+plt.title("Método de Euler Explícito - Comparación de Pasos")
+plt.xlabel("Tiempo (s)")
+plt.ylabel("Posición (m)")
 plt.legend()
+plt.grid(True)
 plt.show()
