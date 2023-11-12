@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from math import sqrt as raiz
 
 PADRON = 99444
 # Variables a usar:
@@ -160,3 +161,30 @@ def runge_kutta(funcion, u0, v0, paso_h, intervalo_t):
         v += 0.5*(q1v+q2v)
 
     return tiempo, valores_u, valores_v
+
+
+
+# ----------------------------- ORDEN DE CONVERGENCIA --------------------------------
+
+def modulo(x1):
+    """
+    Operacion modulo de un numero
+    """
+    return raiz((x1**2))
+
+def error_iteracion(x_actual , x_siguiente):
+    """
+    Calcula el error de iteracion
+    """
+    return modulo(x_actual-x_siguiente)/modulo(x_siguiente)
+
+def orden_convergencia(iteracion):
+    """
+    Devuelve una lista con la convergencia calculada para cada paso.
+    """
+    orden_cv = []
+    for i in range(1,iteracion-1):
+        cv_iter_i = np.log(error_iteracion((iteracion+1)/iteracion))/ np.log((iteracion)/(iteracion-1))
+        orden_cv.append(cv_iter_i)
+    
+    return orden_cv
