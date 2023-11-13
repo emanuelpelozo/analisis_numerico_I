@@ -188,3 +188,23 @@ def orden_convergencia(iteracion):
         orden_cv.append(cv_iter_i)
     
     return orden_cv
+
+
+
+# ----------------------------- VALOR DE C --------------------------------
+
+def valor_de_c(tiempo):
+    """
+    Devuelve el valor de c y c' en funcion del tiempo, en forma de una tupla (c , c').
+    """
+    if (tiempo<=1.1 and tiempo>1.0) :
+        return (tiempo-1,1)
+    
+    elif (tiempo<1.4 and tiempo>=1.3):
+        return (tiempo-1.3,1)
+    
+    elif (tiempo<1.3 and tiempo>1.1):
+        return(0.1,0)
+    
+    else:
+        return (0,0)
