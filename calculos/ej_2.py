@@ -1,7 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from ej_1 import pasos_h, m, k, lambda_, y0,v0, INTERVALO_T
+from ej_1 import pasos_h, m, k, y0,v0, INTERVALO_T
 
+nuevo_lamda = 750
+lambda_ = nuevo_lamda
 def valor_de_c(tiempo):
     """
     Devuelve el valor de c y c' en funcion del tiempo, en forma de una tupla (c , c').
