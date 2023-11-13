@@ -17,6 +17,7 @@ INTERVALO_T = 5  # segundos
 
 # ----------------------------- EULER EXPLICITO --------------------------------
 
+
 # Aplico cambio de variable:
 def sistema_cambio_de_variable(u, v):
     u_prima = v
@@ -54,17 +55,6 @@ def euler_explicito(funcion, u0, v0, paso_h, intervalo_t):
 
 y0 = 0  # Condición inicial para y
 v0 = 0  # Condición inicial para v
-
-
-# tiempo, valores_u, valores_v = euler_explicito(sistema_cambio_de_variable, y0, v0, paso_h, INTERVALO_T)
-
-# # Graficar resultados
-# plt.plot(tiempo, valores_u, label='Posición (u)')
-# #plt.plot(tiempo, valores_v, label='Velocidad (v)')
-# plt.xlabel('Tiempo (s)')
-# plt.ylabel('Magnitud')
-# plt.legend()
-# plt.show()
 
 
 # Gráfico comparativo
