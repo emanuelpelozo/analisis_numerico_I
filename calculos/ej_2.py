@@ -290,10 +290,10 @@ def optimosFB(paso_h, intervalo_t, u0, v0):
 
             if (min_comp)>=-0.05:
                 min_compresion.append((k,lam,min_comp))
-                
+
             max_aceleracion.append((k,lam,max_ac))
     
-    opt_k_comp, opt_lam_comp, _ = max(min_comp, key=lambda item:item[2])
-    opt_k_ac, opt_lam_ac, _ = min(max_ac, key=lambda item:item[2])
+    opt_k_comp, opt_lam_comp, _ = max(min_compresion, key=lambda item:item[2])
+    opt_k_ac, opt_lam_ac, _ = min(max_aceleracion, key=lambda item:item[2])
 
     return opt_k_comp, opt_k_ac, opt_lam_comp, opt_lam_ac
