@@ -242,3 +242,58 @@ def optimoK(paso_h, intervalo_t, u0, v0):
     lambda_opt_acel = optimoLambdaAcel(paso_h, u0, v0, k_opt_acel)
 
     return k_opt_comp, k_opt_acel, lambda_opt_comp, lambda_opt_acel
+
+
+
+def optimosFB(paso_h, intervalo_t, u0, v0):
+    """
+    Calculamos el lambda y K optimos a partir de Fuerza Bruta.
+    """
+
+    valores_k = []
+    for i in range(1000,91000,1000): valores_k.append(i)
+
+    valores_lambda = []
+    for i in range(150,5250,150): valores_lambda.append(i)
+
+    min_compresion = []     #Lista con tuplas de la forma (k,lambda,compresion)
+    max_aceleracion = []    #Lista con tuplas de la forma (k,lambda,aceleracion)
+
+    tiempo = np.arange(0, intervalo_t, paso_h)
+
+    for k in valores_k:
+
+        for lam in valores_lambda:
+
+            min_comp = float("inf")
+            max_ac =   float("-inf")
+
+            u = u0
+            v = v0
+
+            for t in tiempo:
+                c , c_prima = valor_de_c(t)
+                q1u,q2u,q1v,q2v = calculo_q(u,v,paso_h,k,lam,c,c_prima)
+                
+                u += 0.5*(q1u+q2u)
+                v += 0.5*(q1v+q2v)
+
+                #Buscamos el momento en el que el resorte este mas comprimido.
+                if (u-c)<min_comp:
+                    min_comp = (u-c)
+
+                #Buscamos la aceleracion maxima al pasar por la loma de burro.
+                if (t>=1.1) and (t<=1.4):
+                    aceleracion = q1v/paso_h
+                    if aceleracion>max_ac:
+                        max_ac = aceleracion
+
+            if (min_comp)>=-0.05:
+                min_compresion.append((k,lam,min_comp))
+                
+            max_aceleracion.append((k,lam,max_ac))
+    
+    opt_k_comp, opt_lam_comp, _ = max(min_comp, key=lambda item:item[2])
+    opt_k_ac, opt_lam_ac, _ = min(max_ac, key=lambda item:item[2])
+
+    return opt_k_comp, opt_k_ac, opt_lam_comp, opt_lam_ac
