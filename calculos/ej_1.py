@@ -266,7 +266,7 @@ def optimoLambdaComp(paso_h, intervalo_t, u0, v0, k_opt):
 
             #Buscamos el valor de compresion mas grande (lo mas comprimido posible, es decir, cuando u esta mas cercano a c)
             if (u-c)<minimo:
-                minimo = u
+                minimo = (u-c)
 
         max_compresion.append((lam,minimo))
 
@@ -347,11 +347,11 @@ def optimoK(paso_h, intervalo_t, u0, v0):
 
             #Buscamos el valor de compresion mas grande (lo mas comprimido posible, es decir, cuando u esta mas cercano a c)
             if (u-c)<min_comp:
-                min_comp = u
+                min_comp = (u-c)
 
             #Buscamos el valor de aceleracion mas chico al pasar por la loma de burro, es decir, en dicho intervalo de tiempo.
-            aceleracion = q1v/paso_h
             if (t>=1.1) and (t<=1.4):
+                aceleracion = q1v/paso_h
                 if aceleracion>max_ac:
                     max_ac = aceleracion
 
@@ -362,7 +362,7 @@ def optimoK(paso_h, intervalo_t, u0, v0):
     k_opt_acel = min(max_aceleracion, key = lambda item:item[1]) #Buscamos la aceleracion mas chica para todas las aceleraciones que hay.
 
     lambda_opt_comp = optimoLambdaComp(paso_h, intervalo_t, u0, v0, k_opt_comp)
-    lambda_opt_acel = optimoLambdaAcel(paso_h, intervalo_t, u0, v0, k_opt_acel)
+    lambda_opt_acel = optimoLambdaAcel(paso_h, u0, v0, k_opt_acel)
 
     return k_opt_comp, k_opt_acel, lambda_opt_comp, lambda_opt_acel
 
