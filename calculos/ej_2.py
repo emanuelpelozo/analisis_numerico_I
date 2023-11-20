@@ -288,6 +288,10 @@ def optimosFB(paso_h, intervalo_t, u0, v0):
                     if aceleracion>max_ac:
                         max_ac = aceleracion
 
+                # Para las oscilaciones 
+                # Si t > 1.4, sumo los valores del modulo de u. Luego de iterar todo la combinacion de k y lambda
+                # que tenga menor suma es la que tiene menor oscilacion
+
             if (min_comp)>=-0.05:
                 min_compresion.append((k,lam,min_comp))
 
