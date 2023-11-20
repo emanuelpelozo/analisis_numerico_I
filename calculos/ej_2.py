@@ -74,3 +74,171 @@ plt.ylabel("Posición (m)")
 plt.legend()
 plt.grid(True)
 plt.show()
+
+
+
+
+# ----------------------------- K Y LAMBDA OPTIMOS --------------------------------
+
+
+"""
+Vamos a buscar un K y un lambda, tal que el sistema de amortiguacion no se comprima 
+mas de 0.05m, es decir y-c >= 0.05m. 
+Para buscar el optimo lo haremos por Fuerza Bruta, primero con un lambda constante
+y con distintos valores de k hasta encontrar el optimo k, para luego ir variando 
+lambda y con el k optimo, hasta en contrar el optimo de lambda. Luego haremos
+al reves, primero buscaremos el optimo lambda y luego el optimo k.
+"""
+
+def calculo_q(u,v,paso,k,lambda_, c, c_prima):
+    """
+    Calculamos las q's
+    """
+    q1u = paso*v
+    q1v = paso*((1/m)*(k*(c-u)+lambda_*(c_prima-v)))
+
+    q2u = paso*(v+q1v)
+    q2v = paso*((1/m)*(k*(c-(u+q1u))+lambda_*(c_prima-(v+q1v))))
+
+    return q1u,q2u,q1v,q2v
+
+
+def optimo(max_compresion):
+    #Vemos cuales valores cumplen (su compresion maxima es mayor que -0.05) y nos quedamos con el mas grande
+    validos = []
+    for compresion in max_compresion:
+        if compresion[1] >= -0.05:
+            validos.append(compresion)
+    
+    optimo = max(validos, key = lambda item:item[1])
+    return optimo
+
+
+def optimoLambdaComp(paso_h, intervalo_t, u0, v0, k_opt):
+    """
+    Como lambda tiene valores mas pequenios que K realizamos lo mismo pero
+    con valores de a 150, de 150 hasta 3000.
+    """
+    valores_lambda = []
+    for i in range(150,3150,150): valores_lambda.append(i)
+    max_compresion = []
+
+    #No queria hacerle modificaciones al RK original asi que copie y pegue el codigo para hacerle sus modificaciones aca.
+    tiempo = np.arange(0, intervalo_t, paso_h)
+    
+    for lam in valores_lambda:
+        minimo = float("inf")
+
+        # seteamos condiciones iniciales
+        u = u0
+        v = v0
+
+        # Recorremos los puntos en el tiempo.
+        for t in tiempo:
+            c , c_prima = valor_de_c(t)
+            q1u,q2u,q1v,q2v = calculo_q(u,v,paso_h,k_opt,lam,c,c_prima)
+
+            u += 0.5*(q1u+q2u)
+            v += 0.5*(q1v+q2v)
+
+            #Buscamos el valor de compresion mas grande (lo mas comprimido posible, es decir, cuando u esta mas cercano a c)
+            if (u-c)<minimo:
+                minimo = (u-c)
+
+        max_compresion.append((lam,minimo))
+
+    lambda_optimo = optimo(max_compresion)
+    return lambda_optimo
+
+
+def optimoLambdaAcel(paso_h, u0, v0, k_opt):
+    """
+    Como lambda tiene valores mas pequenios que K realizamos lo mismo pero
+    con valores de a 150, de 150 hasta 3000.
+    """
+    valores_lambda = []
+    for i in range(150,3150,150): valores_lambda.append(i)
+    max_aceleracion = []
+
+    #No queria hacerle modificaciones al RK original asi que copie y pegue el codigo para hacerle sus modificaciones aca.
+    tiempo = np.arange(1.1, 1.4, paso_h)
+    
+    for lam in valores_lambda:
+        max_ac = float("-inf")
+
+        # seteamos condiciones iniciales
+        u = u0
+        v = v0
+
+        # Recorremos los puntos en el tiempo.
+        for t in tiempo:
+            c , c_prima = valor_de_c(t)
+            q1u,q2u,q1v,q2v = calculo_q(u,v,paso_h,k_opt,lam,c,c_prima)
+
+            u += 0.5*(q1u+q2u)
+            v += 0.5*(q1v+q2v)
+
+            #Buscamos el valor de aceleracion mas chico al pasar por la loma de burro, es decir, en dicho intervalo de tiempo.
+            aceleracion = q1v/paso_h
+            if aceleracion>max_ac:
+                max_ac = aceleracion
+
+        max_aceleracion.append((lam,max_ac))
+
+    lambda_optimo = min(max_aceleracion, key = lambda item:item[1])
+    return lambda_optimo
+
+
+
+def optimoK(paso_h, intervalo_t, u0, v0):
+    """
+    Podemos ver que K tiene valores grandes, por lo que tomaremos valores de
+    a mil, desde mil hasta 30 mil. Por cada uno, veremos cual es la maxima 
+    compresion y luego buscaremos la minima compresion del total.
+    """
+    lambda_ = 750
+    valores_k = []
+    for i in range(1000,31000,1000): valores_k.append(i)
+
+    max_compresion = []
+    max_aceleracion = []
+
+    #No queria hacerle modificaciones al RK original asi que copie y pegue el codigo para hacerle sus modificaciones aca.
+    tiempo = np.arange(0, intervalo_t, paso_h)
+    
+    for k in valores_k:
+        min_comp = float("inf")
+        max_ac =   float("-inf")
+
+        # seteamos condiciones iniciales
+        u = u0
+        v = v0
+
+        # Recorremos los puntos en el tiempo.
+        for t in tiempo:
+            c , c_prima = valor_de_c(t)
+            q1u,q2u,q1v,q2v = calculo_q(u,v,paso_h,k,lambda_,c,c_prima)
+
+            u += 0.5*(q1u+q2u)
+            v += 0.5*(q1v+q2v)
+
+            #Buscamos el valor de compresion mas grande (lo mas comprimido posible, es decir, cuando u esta mas cercano a c)
+            if (u-c)<min_comp:
+                min_comp = (u-c)
+
+            #Buscamos el valor de aceleracion mas chico al pasar por la loma de burro, es decir, en dicho intervalo de tiempo.
+            if (t>=1.1) and (t<=1.4):
+                aceleracion = q1v/paso_h
+                if aceleracion>max_ac:
+                    max_ac = aceleracion
+
+        max_compresion.append((k,min_comp))
+        max_aceleracion.append((k,max_ac))
+    
+    k_opt_comp = optimo(max_compresion)
+    k_opt_acel = min(max_aceleracion, key = lambda item:item[1]) #Buscamos la aceleracion mas chica para todas las aceleraciones que hay.
+
+    lambda_opt_comp = optimoLambdaComp(paso_h, intervalo_t, u0, v0, k_opt_comp)
+    lambda_opt_acel = optimoLambdaAcel(paso_h, u0, v0, k_opt_acel)
+
+    return k_opt_comp, k_opt_acel, lambda_opt_comp, lambda_opt_acel
