@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from ej_1 import pasos_h, m, k, y0,v0, INTERVALO_T
+from math import sqrt as raiz
 
 nuevo_lambda = 750
 lambda_ = nuevo_lambda
@@ -245,6 +246,17 @@ def optimoK(paso_h, intervalo_t, u0, v0):
 
 
 
+
+#------------------------------------------HECHO POR FB---------------------------------------------------
+
+def modulo(x1):
+    """
+    Operacion modulo de un numero
+    """
+    return raiz((x1**2))
+
+
+
 def optimosFB(paso_h, intervalo_t, u0, v0):
     """
     Calculamos el lambda y K optimos a partir de Fuerza Bruta.
@@ -258,6 +270,7 @@ def optimosFB(paso_h, intervalo_t, u0, v0):
 
     min_compresion = []     #Lista con tuplas de la forma (k,lambda,compresion)
     max_aceleracion = []    #Lista con tuplas de la forma (k,lambda,aceleracion)
+    osilaciones = []        #Lista con tuplas de la forma (k,lambda,suma_osilaciones)
 
     tiempo = np.arange(0, intervalo_t, paso_h)
 
@@ -267,6 +280,7 @@ def optimosFB(paso_h, intervalo_t, u0, v0):
 
             min_comp = float("inf")
             max_ac =   float("-inf")
+            suma_osilaciones = 0
 
             u = u0
             v = v0
@@ -288,16 +302,21 @@ def optimosFB(paso_h, intervalo_t, u0, v0):
                     if aceleracion>max_ac:
                         max_ac = aceleracion
 
-                # Para las oscilaciones 
-                # Si t > 1.4, sumo los valores del modulo de u. Luego de iterar todo la combinacion de k y lambda
-                # que tenga menor suma es la que tiene menor oscilacion
+                #Sumamos en modulo todas las osilaciones que se dan luego de la loma de burro.
+                if t>=1.4:
+                    suma_osilaciones+=modulo(u)
+
 
             if (min_comp)>=-0.05:
                 min_compresion.append((k,lam,min_comp))
 
             max_aceleracion.append((k,lam,max_ac))
-    
+
+            osilaciones.append((k,lam, suma_osilaciones))
+
+
     opt_k_comp, opt_lam_comp, _ = max(min_compresion, key=lambda item:item[2])
     opt_k_ac, opt_lam_ac, _ = min(max_aceleracion, key=lambda item:item[2])
+    opt_k_os, opt_lam_os, _ = min(osilaciones, key=lambda item:item[2])
 
-    return opt_k_comp, opt_k_ac, opt_lam_comp, opt_lam_ac
+    return opt_k_comp, opt_k_ac, opt_k_os, opt_lam_comp, opt_lam_ac, opt_lam_os
